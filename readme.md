@@ -70,25 +70,24 @@ For advanced users managing multiple services, you can integrate **vin2pin** wit
 ### `docker-compose.yml` Example
 
 Create a file named `docker-compose.yml` with the following content:
+```yaml
+services:
+   vin2pin:
+      image: ghcr.io/wit-systems/vin2pin:latest
+      restart: unless-stopped
+      labels:
+       - traefik.enable=true
+       - traefik.http.routers.vin2pin.rule=Host(`YOUR.HOSTNAME.EXAMPLE`)
+       - traefik.http.routers.vin2pin.entrypoints=websecure, web
+       - traefik.http.services.vin2pin.loadbalancer.server.port=80
+       - traefik.docker.network=traefik-net
+      networks:
+       - traefik-net
 
-    ```yaml
-    services:
-        vin2pin:
-            image: ghcr.io/wit-systems/vin2pin:latest
-            restart: unless-stopped
-            labels:
-             - traefik.enable=true
-             - traefik.http.routers.vin2pin.rule=Host(`YOUR.HOSTNAME.EXAMPLE`)
-             - traefik.http.routers.vin2pin.entrypoints=websecure, web
-             - traefik.http.services.vin2pin.loadbalancer.server.port=80
-             - traefik.docker.network=traefik-net
-            networks:
-             - traefik-net
-
-    networks:
-        traefik-net:
-            external: true
-    ```
+networks:
+   traefik-net:
+      external: true
+```
 
 ### Important Notes
 Replace YOUR.HOSTNAME.EXAMPLE with your actual domain name.
