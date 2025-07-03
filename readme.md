@@ -1,6 +1,6 @@
 # Web Adaptation: Smartra VIN to PIN Converter
 
-This project is a web-based adaptation of the [Smartra VIN to PIN Converter](https://github.com/Dante383/smartra-vin-to-pin) originally developed by Dante383. It provides a simple, accessible interface for converting Vehicle Identification Numbers (VINs) to immobilizer PINs directly within a web browser.
+This project is a web-based adaptation of the [Smartra VIN to PIN Converter](https://github.com/Dante383/smartra-vin-to-pin) originally developed by @Dante383. It provides a simple, accessible interface for converting Vehicle Identification Numbers (VINs) to immobilizer PINs directly within a web browser.
 
 # How to Use
 
