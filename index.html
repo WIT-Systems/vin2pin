@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SMARTRA Immo Pin Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #1a202c;
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center min-h-screen p-4 bg-gray-900">
+    <div
+      class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-md w-full border border-gray-700"
+    >
+      <h1 class="text-3xl font-bold text-white mb-6 text-center">
+        SMARTRA Immo Pin Calculator
+      </h1>
+      <p class="text-sm text-gray-400 mb-4 text-center">
+        This calculator should apply for all Hyundai and KIA models equipped
+        with SMARTRA2 (around 2007+ models might use SMARTRA3 with a different
+        algorithm).
+      </p>
+
+      <div class="mb-5">
+        <label
+          for="vinInput"
+          class="block text-gray-300 text-sm font-medium mb-2"
+        >
+          Enter your VIN or its last 6 digits:
+        </label>
+        <input
+          type="text"
+          id="vinInput"
+          class="shadow-sm appearance-none border border-gray-600 rounded-md w-full py-2 px-3 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 placeholder-gray-400 transition duration-200 ease-in-out"
+          placeholder="e.g., 123456 or KXXXXXX123456"
+          aria-label="VIN input field"
+        />
+      </div>
+
+      <button
+        id="calculateButton"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+        aria-label="Calculate Immo Pin"
+      >
+        Calculate Immo Pin
+      </button>
+
+      <div
+        id="resultContainer"
+        class="mt-6 p-4 bg-blue-900 rounded-md border border-blue-700 text-blue-200 text-center text-lg font-semibold hidden"
+        role="alert"
+      >
+        Your immo pin should be:
+        <span id="immoPinResult" class="text-blue-100"></span>
+      </div>
+
+      <div
+        id="errorContainer"
+        class="mt-6 p-4 bg-red-900 rounded-md border border-red-700 text-red-200 text-center text-base hidden"
+        role="alert"
+      ></div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const vinInput = document.getElementById("vinInput");
+        const calculateButton = document.getElementById("calculateButton");
+        const resultContainer = document.getElementById("resultContainer");
+        const immoPinResult = document.getElementById("immoPinResult");
+        const errorContainer = document.getElementById("errorContainer");
+
+        function get_last_6_digits(textInput) {
+          try {
+            const last6Chars = String(textInput).slice(-6);
+            const num = parseInt(last6Chars, 10);
+
+            if (isNaN(num) || last6Chars.length !== 6) {
+              throw new Error(
+                "Invalid input. Please enter at least 6 numeric digits."
+              );
+            }
+            return num;
+          } catch (e) {
+            throw new Error(
+              "Something went wrong with the input. Please ensure you enter valid digits."
+            );
+          }
+        }
+
+        function get_msb_bigint(byte) {
+          return (byte >> 16n) & 0x0ffffn;
+        }
+
+        function get_lsb_bigint(byte) {
+          return byte & 0xffffn;
+        }
+
+        function calculate_smartra_pin(last_6_digits_of_vin) {
+          let output = BigInt(last_6_digits_of_vin);
+          let index = 0x0;
+
+          while (true) {
+            if (index > 0x27) {
+              break;
+            }
+
+            if ((get_msb_bigint(output) & 0x8000n) === 0n) {
+              output = output << 1n;
+            } else {
+              output = output << 1n;
+
+              let msb = get_msb_bigint(output) ^ 0x7798n;
+              let lsb = get_lsb_bigint(output) ^ 0x2990n;
+
+              output = (msb << 16n) | lsb;
+            }
+
+            index += 1;
+          }
+
+          return Number(output % 1000000n);
+        }
+
+        calculateButton.addEventListener("click", () => {
+          resultContainer.classList.add("hidden");
+          errorContainer.classList.add("hidden");
+          errorContainer.textContent = "";
+
+          const vinValue = vinInput.value.trim();
+
+          if (!vinValue) {
+            errorContainer.textContent =
+              "Please enter a VIN or its last 6 digits.";
+            errorContainer.classList.remove("hidden");
+            return;
+          }
+
+          try {
+            const last6Digits = get_last_6_digits(vinValue);
+            const calculatedPin = calculate_smartra_pin(last6Digits);
+
+            const formattedPin = String(calculatedPin).padStart(6, "0");
+
+            immoPinResult.textContent = formattedPin;
+            resultContainer.classList.remove("hidden");
+          } catch (error) {
+            errorContainer.textContent = `Error: ${error.message}`;
+            errorContainer.classList.remove("hidden");
+          }
+        });
+
+        vinInput.addEventListener("keypress", (event) => {
+          if (event.key === "Enter") {
+            calculateButton.click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
