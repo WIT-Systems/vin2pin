@@ -41,11 +41,11 @@ For a consistent environment, you can run the application as a Docker container.
 1. **Pull the Docker Image**  
    The image is available on GitHub Container Registry (GHCR):
    ```bash
-   docker pull ghcr.io/wit-systems/vin2pin:sha-7340459
+   docker pull ghcr.io/wit-systems/vin2pin:latest
    ```
 2. **Run the Docker Container**
    ```bash
-   docker run -p 8080:80 ghcr.io/wit-systems/vin2pin:sha-7340459
+   docker run -p 8080:80 ghcr.io/wit-systems/vin2pin:latest
    ```
 3. **Access the Application**
     Open your web browser and navigate to:
@@ -74,7 +74,7 @@ Create a file named `docker-compose.yml` with the following content:
     ```yaml
     services:
         vin2pin:
-            image: ghcr.io/wit-systems/vin2pin:sha-7340459
+            image: ghcr.io/wit-systems/vin2pin:latest
             restart: unless-stopped
             labels:
              - traefik.enable=true
